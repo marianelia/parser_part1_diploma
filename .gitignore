@@ -1,3 +1,9 @@
+#Input(testing) file
+alsapi.h
+
+#User-file
+*pro..user
+
 # Prerequisites
 *.d
 
