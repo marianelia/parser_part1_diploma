@@ -6,6 +6,7 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/io.hpp>
 #include <boost/foreach.hpp>
+#include <boost/fusion/include/std_pair.hpp>
 
 #include <boost/phoenix/stl.hpp>
 #include <string>
@@ -14,6 +15,9 @@
 
 namespace client
 {
+	typedef std::vector<std::pair<std::string, std::string>> vector_pair_str;
+	typedef std::pair<std::string, std::string> pair_str;
+
 	namespace qi = boost::spirit::qi;
 	namespace ascii = boost::spirit::ascii;
 	namespace phoenix = boost::phoenix;
@@ -24,9 +28,10 @@ namespace client
 	//std::string type_out;
 	//std::vector<std::string> namespaces;
 	//std::string name;
-	//std::vector<std::pair<std::string, std::string>> args_in;
+	//vector_pair_str args_in;
+	//pair_str args_in;
 		std::vector<std::string> arg_in_types;
-		std::vector<std::string> arg_in_names;
+		//std::vector<std::string> arg_in_names;
 	};
 
 
@@ -40,11 +45,15 @@ namespace client
 			string = qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z_0-9");
 
 			list_arg_in_types = string;
-			//list_arg_in_names = string;
 
-			start %= "(" >> *qi::space >> list_arg_in_types >> +qi::space >> list_arg_in_types >> *qi::space
+			//arg_in = string >> +qi::space >> string;
+
+			//list_arg_in = ;
+
+			start %= "(" >> *qi::space >> list_arg_in_types >> *qi::space >> list_arg_in_types >> *qi::space
 						// >> *("," >> list_arg_in_types >> +qi::space >> list_arg_in_names >> *qi::space)
 						 >> ")";
+
 			//name_space = string >> *qi::space >> qi::lit(":") >> qi::lit(":");
 
 //			start %= string >> +qi::space >> *name_space >> *qi::space >> string >> *qi::space
@@ -54,11 +63,13 @@ namespace client
 //						   >> ')' >> *qi::space
 //						   >> qi::lit(';');
 
-			BOOST_SPIRIT_DEBUG_NODES( (start) (list_arg_in_types) )
+			BOOST_SPIRIT_DEBUG_NODES( (start) (list_arg_in_types) (string) )
 		}
 		private:
 
 		qi::rule<Iterator, std::string()> string;
+		//qi::rule<Iterator, pair_str()> arg_in;
+		//qi::rule<Iterator, vector_pair_str()> list_arg_in;
 		qi::rule<Iterator, std::vector<std::string>()> list_arg_in_types;
 		//qi::rule<Iterator, std::vector<std::string>()> list_arg_in_names;
 		qi::rule<Iterator, FuncArgs()> start;
@@ -66,8 +77,7 @@ namespace client
 }
 
 BOOST_FUSION_ADAPT_STRUCT(client::FuncArgs,
-		(std::vector<std::string>, arg_in_types)
-		(std::vector<std::string>, arg_in_names)
+			(std::vector<std::string>, arg_in_types)
 						  )
 
 namespace qi = boost::spirit::qi;
@@ -75,7 +85,6 @@ namespace qi = boost::spirit::qi;
 int main()
 {
 	typedef std::string::const_iterator iterator_type;
-	//client::vec_str vec_parsed_param_of_func;
 	client::parser_struct<iterator_type> p;
 
 	client::FuncArgs func_args;
@@ -93,15 +102,15 @@ int main()
 		std::string::const_iterator end = str.end();
 		if(qi::parse(begin, end, p, func_args))
 		{
-			//std::cout << "\nSize: " << func_args.arg_in_types.size() << '\n';
+			std::cout << "\nSize: " << func_args.arg_in_types.size() << '\n';
 			for(int i = 0; i<func_args.arg_in_types.size(); i++)
 			{
 				std::cout  << "arg_in_types: "<< func_args.arg_in_types[i] << '\n';
 			}
-			for(int i = 0; i<func_args.arg_in_names.size(); i++)
-			{
-				std::cout  << "arg_in_names: "<< func_args.arg_in_names[i] << '\n';
-			}
+//			for(int i = 0; i<func_args.arg_in_names.size(); i++)
+//			{
+//				std::cout  << "arg_in_names: "<< func_args.arg_in_names[i] << '\n';
+//			}
 		}
 		//vec_parsed_param_of_func.clear();
 	//}
